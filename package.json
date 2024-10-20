@@ -6,7 +6,7 @@
     "name": "AdamantLife"
   },
   "description": "Adds the ParametricSVG Schema and an SVG Preview for .psvg.json Files. See https://github.com/AdamantLife/ParametricSVG for more information on the ParametricSVG Schema.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "SEE LICENSE IN LICENSE.txt",
   "icon": "content/icon.png",
   "galleryBanner": {

@@ -8,6 +8,7 @@
  *  - No circular dependencies
  *  - Decimal points must be preceded by a digit
  *  - Implicit multiplication is not allowed (e.g.- "2x" and "4(x+1)" are invalid and should instead be "2*x" and "4*(x+1)")
+ *  - Parentheses must be closed
  * 
  * Variables are stored as objects in order to include metadata that may be useful.
  */
@@ -215,6 +216,12 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
      */
     function parseValue(equation, variables, dependencies){
         DEBUGINC();
+        // Number() converts empty strings and whitespace-exclusive
+        // strings to 0, so we need to check that first
+        if(!equation.trim()){
+            DEBUGDEC();
+            throw new Error(`Empty String: "${equation}"`);
+        }
         let result = Number(equation);
         if(isNaN(result)){
             DEBUGDEC();
