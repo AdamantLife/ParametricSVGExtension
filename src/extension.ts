@@ -30,14 +30,14 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.ViewColumn.Two,
 				{  // Options
 					enableScripts: true,
-					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, "src", "js"), vscode.Uri.joinPath(context.extensionUri, "src", "css")]
+					localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, "js"), vscode.Uri.joinPath(context.extensionUri, "css")]
 				}
 			);
 
 			
-			let scriptjsuri = vscode.Uri.joinPath(context.extensionUri, "src", "js", "script.js");
+			let scriptjsuri = vscode.Uri.joinPath(context.extensionUri,  "js", "script.js");
 			let scriptjs = currentPanel.webview.asWebviewUri(scriptjsuri);
-			let stylecssuri = vscode.Uri.joinPath(context.extensionUri, "src", "css", "style.css");
+			let stylecssuri = vscode.Uri.joinPath(context.extensionUri,  "css", "style.css");
 			let stylecss = currentPanel.webview.asWebviewUri(stylecssuri);
 			
 			currentPanel.webview.html = buildPage({script: scriptjs, css: stylecss, webview : currentPanel.webview});
