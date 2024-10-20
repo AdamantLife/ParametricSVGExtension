@@ -1,0 +1,26 @@
+#svg {
+    border: inset;
+    width: fit-content;
+    height: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+p {
+    text-align: center;
+    font-style: italic;
+    margin-top:3px;
+    margin-bottom:3px;
+}
+#sizep {
+    font-size: large;
+}
+
+#sizesub {
+    font-size: small;
+    margin-bottom: 10px;
+}
+
+#save {
+    margin-top: auto;
+    margin-bottom:0;
+}

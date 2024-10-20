@@ -1,0 +1,315 @@
+{
+    "comments": [
+        "Because it would be wrong to not use ParametricSVG to create the icon for this extension"
+    ],
+    "attributes": {
+        "viewBox": "0 0 128 128"
+    },
+    "equations": {
+        "s_spacing":{
+            "name": "s_spacing",
+            "value": "1"
+        },
+        "fontsize":{
+            "name": "fontsize",
+            "value": "vbw*1/2"
+        },
+        "vsize":{
+            "name": "vsize",
+            "value": "fontsize//1.5"
+        }
+    },
+    "svgcomponents": [
+        {
+            "type": "defs",
+            "children": [
+                {
+                    "type": "path",
+                    "id": "s",
+                    "d": [
+                        {
+                            "type": "move",
+                            "x": "0",
+                            "y": "0"
+                        },
+                        {
+                            "type": "shortquadratic",
+                            "relative": true,
+                            "x": "-fontsize/16",
+                            "y": "-fontsize/16"
+                        },
+                        {
+                            "type": "shortquadratic",
+                            "relative": true,
+                            "x": "-fontsize/8",
+                            "y": "fontsize/16"
+                        },
+                        {
+                            "type": "arc",
+                            "relative": true,
+                            "x": 0,
+                            "y": "fontsize/8",
+                            "rx": "fontsize/8",
+                            "ry": "fontsize/8",
+                            "xRotation": 0,
+                            "largeArcFlag": false,
+                            "sweepFlag": false
+                        },
+                        {
+                            "type": "line",
+                            "relative": true,
+                            "x": "fontsize/8",
+                            "y": "fontsize/8"
+                        },
+                        {
+                            "type": "arc",
+                            "relative": true,
+                            "x": 0,
+                            "y": "fontsize/8",
+                            "rx": "fontsize/8",
+                            "ry": "fontsize/8",
+                            "xRotation": "-45",
+                            "largeArcFlag": false,
+                            "sweepFlag": true
+                        },
+                        {
+                            "type": "shortquadratic",
+                            "relative": true,
+                            "x": "-fontsize/16",
+                            "y": "fontsize/16"
+                        },
+                        {
+                            "type": "shortquadratic",
+                            "relative": true,
+                            "x": "-fontsize/8",
+                            "y": "-fontsize/8"
+                        }
+                    ],
+                    "attributes": {
+                        "fill":"none",
+                        "stroke-width":"5",
+                        "stroke-linecap": "round",
+                        "transform-origin": "0 0",
+                        "transform": ["translate(", "vbw/2-fontsize/2.5"," , ", "vbh/2",") rotate(45)"]
+                    }
+                }
+            ]
+        },
+        {
+            "type": "use",
+            "href": "#s",
+            "x": 0,
+            "y": 0,
+            "attributes": {
+                "stroke": "purple"
+            }
+        },
+        {
+            "type": "use",
+            "href": "#s",
+            "x": 0,
+            "y": 0,
+            "attributes": {
+                "transform": ["translate(", "s_spacing*1", ",", "s_spacing*1", ")"],
+                "stroke": "violet"
+            }
+        },
+        {
+            "type": "use",
+            "href": "#s",
+            "x": 0,
+            "y": 0,
+            "attributes": {
+                "transform": ["translate(", "s_spacing*2", ",", "s_spacing*2", ")"],
+                "stroke": "#F8CDF8"
+            }
+        },
+        {
+            "type": "g",
+            "children": [
+                {
+                    "type": "rect",
+                    "x": "-vsize//2",
+                    "y": "-vsize//2",
+                    "height": "vsize",
+                    "width": "vsize",
+                    "attributes": {
+                        "fill": "green",
+                        "shape-rendering":"crispedges"
+                    }
+                },
+                {
+                    "type": "rect",
+                    "x": "-vsize*3/4//2",
+                    "y": "-vsize*3/4//2",
+                    "height": "vsize*3//4",
+                    "width": "vsize*3//4",
+                    "attributes": {
+                        "fill": "blue",
+                        "shape-rendering":"crispedges"
+                    }
+                },
+                {
+                    "type": "rect",
+                    "x": "-vsize//2",
+                    "y": "-vsize//2",
+                    "height": "vsize//1.5",
+                    "width": "vsize//1.5",
+                    "attributes": {
+                        "fill": "green",
+                        "shape-rendering":"crispedges"
+                    }
+                },
+                {
+                    "type": "rect",
+                    "x": "-vsize//2",
+                    "y": "-vsize//2",
+                    "height": "vsize//2",
+                    "width": "vsize//2",
+                    "attributes": {
+                        "fill": "white",
+                        "shape-rendering":"crispedges"
+                    }
+                }
+            ],
+            "attributes": {
+                "transform-origin": "0 0",
+                "transform": ["translate(", "vbw/2", " , ", "vbh/2+vsize/2", ") rotate(45)"]
+            }
+        },
+        {
+            "type": "text",
+            "children": [
+                {
+                    "type": "raw",
+                    "content": "P"
+                }
+            ],
+            "x": "vbw/2",
+            "y": "vbh/2",
+            "attributes": {
+                "font-size":"fontsize",
+                "text-anchor":"middle",
+                "fill": "gray",
+                "stroke": "black"
+            }
+        },
+        {
+            "type": "defs",
+            "children": [
+                {
+                    "type": "pattern",
+                    "id": "stripes",
+                    "viewBox": "0 0 1 1",
+                    "height": "12%",
+                    "width": "12%",
+                    "children": [
+                        {
+                            "type": "line",
+                            "x1": 0,
+                            "y1": 0,
+                            "x2": 1,
+                            "y2": 0,
+                            "attributes": {
+                                "stroke": "red"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "linearGradient",
+                    "id": "grad",
+                    
+                    "children": [
+                        {
+                            "type": "stop",
+                            "stopColor": "white",
+                            "offset": "10%"
+                        },
+                        {
+                            "type": "stop",
+                            "stopColor": "black",
+                            "offset": "80%"
+                        }
+                    ]
+                },
+                {
+                    "type": "mask",
+                    "id": "g",
+                    "children": [
+                        {
+                            "type": "circle",
+                            "cx": "vbw/2+fontsize-vsize/2",
+                            "cy": "vbh/2",
+                            "r": "vsize/2",
+                            "attributes": {
+                                "fill": "url(#grad)"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "circle",
+            "cx": "vbw/2+fontsize-vsize/2",
+            "cy": "vbh/2",
+            "r": "vsize/2",
+            "attributes": {
+                "fill": "url(#stripes)"
+            }
+        },
+        {
+            "type": "text",
+            "x": "vbw/2+fontsize-vsize/2+fontsize/4",
+            "y": "vbh/2+fontsize/2.5",
+            "children": [
+                {
+                    "type": "raw",
+                    "content": "G"
+                }
+            ],
+            "rotate": -45,
+            "attributes": {
+                "stroke": "black",
+                "font-size": "fontsize*3/4",
+                "text-anchor": "middle"
+            }
+        },
+        {
+            "type": "text",
+            "x": "vbw/2+fontsize-vsize/2+fontsize/4",
+            "y": "vbh/2+fontsize/2.5",
+            "children": [
+                {
+                    "type": "raw",
+                    "content": "G"
+                }
+            ],
+            "rotate": -45,
+            "attributes": {
+                "fill": "orange",
+                "font-size": "fontsize*3/4",
+                "text-anchor": "middle"
+            }
+        },
+        {
+            "type": "text",
+            "x": "vbw/2+fontsize-vsize/2+fontsize/4",
+            "y": "vbh/2+fontsize/2.5",
+            "children": [
+                {
+                    "type": "raw",
+                    "content": "G"
+                }
+            ],
+            "rotate": -45,
+            "attributes": {
+                "fill": "yellow",
+                "font-size": "fontsize*3/4",
+                "text-anchor": "middle",
+                "mask": "url(#g)"
+            }
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+{
+  "name": "parametricsvgextension",
+  "displayName": "ParametricSVGExtension",
+  "publisher": "AdamantLife",
+  "author": {
+    "name": "AdamantLife"
+  },
+  "description": "Adds the ParametricSVG Schema and an SVG Preview for .psvg.json Files. See https://github.com/AdamantLife/ParametricSVG for more information on the ParametricSVG Schema.",
+  "version": "1.0.0",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "icon": "content/icon.png",
+  "galleryBanner": {
+    "color": "#51E018",
+    "theme": "light"
+  },
+  "homepage": "https://github.com/microsoft/ParametricSVGExtension/blob/main/README.md",
+  "bugs": {
+    "url": "https://github.com/AdamantLife/ParametricSVGExtension/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AdamantLife/ParametricSVGExtension.git"
+  },
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "pricing": "Free",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "parametricsvgextension.preview",
+        "title": "Preview PSVG",
+        "icon":"$(open-preview)"
+      }
+    ],
+    "menus":{
+      "commandPalette": [
+        {
+          "command": "parametricsvgextension.preview",
+          "when": "resourceFilename =~ /\\.psvg\\.json$/"
+        }
+      ],
+      "editor/title":[
+        {
+          "when": "resourceFilename =~ /\\.psvg\\.json$/",
+          "command": "parametricsvgextension.preview",
+          "group": "navigation"
+        }
+      ]
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "*/*.psvg.json",
+        "url": "./content/parametricsvg.schema.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.94.0",
+    "@types/mocha": "^10.0.8",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "eslint": "^9.11.1",
+    "typescript": "^5.6.2",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}

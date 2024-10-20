@@ -1,0 +1,1360 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://adamantlife.github.io/parametricsvg.schema.json",
+    "$defs": {
+        "pathcommand":{
+            "description": "A path command",
+            "type":"object",
+            "properties": {
+                "type": {
+                    "description": "The path command type",
+                    "type":"string",
+                    "enum": [
+                        "M", "m", "move",
+                        "L", "l", "line",
+                        "H", "h", "horizontal",
+                        "V", "v", "vertical",
+                        "Z", "z", "close",
+                        "C", "c", "cubic",
+                        "S", "s", "shortcubic",
+                        "Q", "q", "quadratic",
+                        "T", "t", "shortquadratic",
+                        "A", "a", "arc"]
+                },
+                "relative": {
+                    "description": "Whether the path command is relative or absolute. If provided, it will override the type's specific default.",
+                    "type":"boolean"
+                }
+            },
+            "required": ["type"],
+            "unevaluatedProperties": false,
+            "allOf":[
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["Z", "z", "close"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a close command"
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["M", "m", "move"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a move command"
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["L", "l", "line"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a line command"
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["M", "m", "move", "L", "l", "line"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "properties":{
+                            "x": {
+                                "description": "The x coordinate",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["H", "h", "horizontal"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines an horizontal line command",
+                        "properties":{
+                            "x": {
+                                "description": "The x coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["V", "v", "vertical"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a vertical line command",
+                        "properties":{
+                            "y": {
+                                "description": "The y coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["C", "c", "cubic"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a Cubic Bezier Curve command",
+                        "properties":{
+                            "x1": {
+                                "description": "The x coordinate of the first control point",
+                                "type":["number", "string"]
+                            },
+                            "y1": {
+                                "description": "The y coordinate of the first control point",
+                                "type":["number", "string"]
+                            },
+                            "x2": {
+                                "description": "The x coordinate of the second control point",
+                                "type":["number", "string"]
+                            },
+                            "y2": {
+                                "description": "The y coordinate of the second control point",
+                                "type":["number", "string"]
+                            },
+                            "x": {
+                                "description": "The x coordinate at which to end the line",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["S", "s", "shortcubic"]
+                            } 
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a Short Cubic Bezier Curve command",
+                        "properties":{
+                            "x2": {
+                                "description": "The x coordinate of the second control point",
+                                "type":["number", "string"]
+                            },
+                            "y2": {
+                                "description": "The y coordinate of the second control point",
+                                "type":["number", "string"]
+                            },
+                            "x": {
+                                "description": "The x coordinate at which to end the line",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["Q", "q", "quadratic"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a Quadratic Bezier Curve command",
+                        "properties":{
+                            "x1": {
+                                "description": "The x coordinate of the first control point",
+                                "type":["number", "string"]
+                            },
+                            "y1": {
+                                "description": "The y coordinate of the first control point",
+                                "type":["number", "string"]
+                            },
+                            "x": {
+                                "description": "The x coordinate at which to end the line",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["T", "t", "shortquadratic"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines a Short Quadratic Bezier Curve command",
+                        "properties":{
+                            "x": {
+                                "description": "The x coordinate at which to end the line",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "enum": ["A", "a", "arc"]
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "Defines an Arc command",
+                        "properties":{
+                            "rx": {
+                                "description": "The x radius of the arc",
+                                "type":["number", "string"]
+                            },
+                            "ry": {
+                                "description": "The y radius of the arc",
+                                "type":["number", "string"]
+                            },
+                            "xRotation": {
+                                "description": "The rotation of the arc",
+                                "type":["number", "string"]
+                            },
+                            "largeArcFlag": {
+                                "description": "Whether the arc is large or not",
+                                "type":"boolean"
+                            },
+                            "sweepFlag": {
+                                "description": "Whether the arc is clockwise or not",
+                                "type":"boolean"
+                            },
+                            "x": {
+                                "description": "The x coordinate at which to end the line",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate at which to end the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "points":{
+            "description": "The list of points (pairs of x,y absolute coordinates) required to draw the polyline/polygon.",
+            "type":"array",
+            "items": {
+                "description": "A pair of x,y absolute coordinates",
+                "type":["array"],
+                "items": {
+                    "description": "The x and y coordinates",
+                    "type":["number", "string"],
+                    "minItems": 2,
+                    "maxItems": 2
+                }
+            }
+        },
+        "preserveAspectRatio":{
+            "description": "Indicates how an element with a viewBox providing a given aspect ratio must fit into a viewport with a different aspect ratio",
+            "type": "object",
+            "properties":{
+                "align":{
+                    "description": "The alignment of the viewBox",
+                    "type":"string",
+                    "enum": ["none", "xMinYMin", "xMidYMin", "xMaxYMin", "xMinYMid", "xMidYMid", "xMaxYMid", "xMinYMax", "xMidYMax", "xMaxYMax"]
+                },
+                "meetOrSlice":{
+                    "description": "The meet or slice rule",
+                    "type":"string",
+                    "enum": ["meet", "slice"]
+                }
+            }
+        },
+        "svgcomponent":{
+            "description": "A single SVG Component",
+            "type":"object",
+            "properties": {
+                "type": {
+                    "description": "The type of element",
+                    "type":"string",
+                    "enum": ["circle", "line", "ellipse", "rect", "polygon", "polyline", "path", "raw", "a", "clipPath", "defs", "foreignObject", "g", "image", "linearGradient", "marker", "mask", "pattern", "radialGradient", "stop", "style", "switch", "symbol", "text", "textPath", "title", "tspan", "use", "view" ]
+                },
+                "attributes": {
+                    "description": "HTML attributes for the SVG Component",
+                    "type":"object"
+                },
+                "id":{
+                    "description": "The ID of the SVG Component",
+                    "type":"string"
+                },
+                "desc":{
+                    "description": "An accessible, long-text description. This will be converted to a <desc> element nested inside the component",
+                    "type":"string"
+                }
+            },
+            "required": ["type"],
+            "unevaluatedProperties": false,
+            "allOf":[
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "circle"
+                            }
+                        }
+                    },
+                    "then":{
+                        "properties":{
+                            "cx": {
+                                "description": "The x coordinate of the center of the circle", 
+                                "type":["number", "string"]
+                            },
+                            "cy": {
+                                "description": "The y coordinate of the center of the circle", 
+                                "type":["number", "string"]
+                            },
+                            "r": {
+                                "description": "The radius of the circle", 
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "rect"
+                            }
+                        }
+                    },
+                    "then":{    
+                        "properties":{
+                            "x": {  
+                                "description": "The x coordinate of the top left corner of the rectangle",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate of the top left corner of the rectangle",
+                                "type":["number", "string"]
+                            },
+                            "width": {
+                                "description": "The width of the rectangle",
+                                "type":["number", "string"]
+                            },
+                            "height": {
+                                "description": "The height of the rectangle",
+                                "type":["number", "string"]
+                            },
+                            "rx": {
+                                "description": "The horizontal corner radius of the rectangle",
+                                "type":["number", "string"]
+                            },
+                            "ry": {
+                                "description": "The vertical corner radius of the rectangle",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "ellipse"
+                            }
+                        }
+                    },
+                    "then":{    
+                        "properties":{
+                            "cx": {  
+                                "description": "The x coordinate of the center of the ellipse",
+                                "type":["number", "string"]
+                            },
+                            "cy": {
+                                "description": "The y coordinate of the center of the ellipse",
+                                "type":["number", "string"]
+                            },
+                            "rx": {
+                                "description": "The radius of the ellipse along the x axis",
+                                "type":["number", "string"]
+                            },
+                            "ry": {
+                                "description": "The radius of the ellipse along the y axis",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "line"
+                            }
+                        }
+                    },
+                    "then":{
+                        "properties":{
+                            "x1": {
+                                "description": "The x coordinate of the start of the line",
+                                "type":["number", "string"]
+                            },
+                            "y1": {
+                                "description": "The y coordinate of the start of the line",
+                                "type":["number", "string"]
+                            },
+                            "x2": {
+                                "description": "The x coordinate of the end of the line",
+                                "type":["number", "string"]
+                            },
+                            "y2": {
+                                "description": "The y coordinate of the end of the line",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }   
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "polygon"
+                            }
+                        }
+                    },
+                    "then":{
+                        "properties":{
+                            "points": {"$ref":"#/$defs/points"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "polyline"
+                            }
+                        }
+                    },
+                    "then":{
+                        "properties":{
+                            "points": {"$ref":"#/$defs/points"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "path"
+                            }
+                        }
+                    },
+                    "then":{
+                        "properties":{
+                            "d": {
+                                "description": "The path definition",
+                                "type":"array",
+                                "items": {"$ref":"#/$defs/pathcommand"}
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties": {
+                            "type": {
+                                "const": "raw"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "A raw string which will not be parsed by PSVG",
+                        "properties":{
+                            "attributes": false,
+                            "content":{
+                                "type": "string",
+                                "description": "The raw content"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type": {
+                                "const": "a"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <a> SVG element creates a hyperlink to other web pages, files, locations in the same page, email addresses, or any other URL.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/a",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "href": {
+                                "description": "The URL or URL fragment the hyperlink points to",
+                                "type":"string"
+                            },
+                            "hreflang":{
+                                "description": "The human language of the URL or URL fragment that the hyperlink points to",
+                                "type":"string"
+                            },
+                            "ping":{
+                                "description": "A space-separated list of URLs to which, when the hyperlink is followed, POST requests with the body PING will be sent by the browser (in the background). Typically used for tracking. For a more widely-supported feature addressing the same use cases, see Navigator.sendBeacon()",
+                                "type":"array",
+                                "items": {
+                                    "type":"string"
+                                }
+                            },
+                            "referrerpolicy":{
+                                "description": "Which referrer to send when fetching the URL",
+                                "type":"string",
+                                "enum": ["no-referrer", "no-referrer-when-downgrade", "origin", "origin-when-cross-origin", "same-origin", "strict-origin", "strict-origin-when-cross-origin", "unsafe-url"]
+                            },
+                            "rel":{
+                                "description": "The relationship of the target object to the link object",
+                                "type":"string"
+                            },
+                            "target":{
+                                "description": "Where to display the linked URL",
+                                "type":"string"
+                            },
+                            "a.type":{
+                                "description": "A MIME type for the linked URL",
+                                "type":"string"
+                            },
+                            "xlink:href": {
+                                "description": "The IRI to link to",
+                                "type":"string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "clipPath"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <clipPath> SVG element defines a clipping path, to be used by the clip-path property.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "clipPathUnits":{
+                                "description": "the coordinate system for the contents of the <clipPath>",
+                                "type":"string",
+                                "enum": ["userSpaceOnUse","objectBoundingBox"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type": {
+                                "const": "defs"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <defs> element is used to store graphical objects that will be used at a later time.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "foreignObject"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <foreignObject> SVG element includes elements from a different XML namespace.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/foreignObject",
+                        "properties":{
+                            "children": {
+                                "description": "The XML content of the foreignObject",
+                                "type":"string"
+                            },
+                            "x": {
+                                "description": "The x coordinate of the foreignObject",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate of the foreignObject",
+                                "type":["number", "string"]
+                            },
+                            "width": {
+                                "description": "The width of the foreignObject",
+                                "type":["number", "string"]
+                            },
+                            "height": {
+                                "description": "The height of the foreignObject",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "g"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <g> SVG element is a container used to group other SVG elements.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/g",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "image"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <image> SVG element includes images inside SVG documents.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/image",
+                        "properties":{
+                            "x": {
+                                "description": "Positions the image horizontally from the origin.",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "Positions the image vertically from the origin.",
+                                "type":["number", "string"]
+                            },
+                            "width": {
+                                "description": "The width the image renders at.",
+                                "type":["number", "string"]
+                            },
+                            "height": {
+                                "description": "The height the image renders at",
+                                "type":["number", "string"]
+                            },
+                            "href": {
+                                "description": "Points at a URL for the image file",
+                                "type":"string"
+                            },
+                            "xlink:href": {
+                                "description": "Points at a IRI for the image file",
+                                "type":"string"
+                            },
+                            "preserveAspectRatio": {"$ref":"#/$defs/preserveAspectRatio"},
+                            "crossOrigin": {
+                                "description": "The cross origin of the image",
+                                "type":"string"
+                            },
+                            "decoding":{
+                                "description": "The decoding of the image",
+                                "type":"string",
+                                "enum": ["auto", "sync", "async"]
+                            }
+                        },
+                        "required": ["width", "height"]
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "linearGradient"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <linearGradient> element lets authors define linear gradients to apply to other SVG elements.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "x1": {
+                                "description": "the x coordinate of the start point of the gradient",
+                                "type":["number", "string"]
+                            },
+                            "y1": {
+                                "description": "the y coordinate of the start point of the gradient",
+                                "type":["number", "string"]
+                            },
+                            "x2": {
+                                "description": "the x coordinate of the end point of the gradient",
+                                "type":["number", "string"]
+                            },
+                            "y2": {
+                                "description": "the y coordinate of the end point of the gradient",
+                                "type":["number", "string"]
+                            },
+                            "gradientUnits":{
+                                "description": "the coordinate system for attributes x1, y1, x2, y2",
+                                "type":"string",
+                                "enum": ["userSpaceOnUse","objectBoundingBox"]
+                            },
+                            "gradientTransform":{
+                                "description": "provides additional transformation to the gradient coordinate system",
+                                "type":"string"
+                            },
+                            "spreadMethod":{
+                                "description": "how the gradient behaves if it starts or ends inside the bounds of the shape containing the gradient",
+                                "type":"string",
+                                "enum": ["pad","reflect","repeat"]
+                            },
+                            "href":{
+                                "description": "This attribute defines a reference to another <linearGradient> element that will be used as a template",
+                                "type":"string"
+                            },
+                            "xlink:href":{
+                                "description": "An IRI reference to another <linearGradient> element that will be used as a template",
+                                "type":"string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "marker"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <marker> element defines a graphic used for drawing arrowheads or polymarkers on a given <path>, <line>, <polyline> or <polygon> element.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/marker",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "refX": {
+                                "description": "the x coordinate of the reference point of the marker",
+                                "type":["number", "string"]
+                            },
+                            "refY": {
+                                "description": "the y coordinate of the reference point of the marker",
+                                "type":["number", "string"]
+                            },
+                            "markerWidth": {
+                                "description": "the width of the marker",
+                                "type":["number", "string"]
+                            },
+                            "markerHeight": {
+                                "description": "the height of the marker",
+                                "type":["number", "string"]
+                            },
+                            "orient": {
+                                "description": "the orientation of the marker",
+                                "type":["number", "string"]
+                            },
+                            "markerUnits": {
+                                "description": "the coordinate system for attributes refX, refY, markerWidth, markerHeight",
+                                "type":"string",
+                                "enum": ["userSpaceOnUse","strokeWidth"]
+                            },
+                            "preserveAspectRatio": {"$ref":"#/$defs/preserveAspectRatio"},
+                            "viewBox": {
+                                "description": "the viewBox of the marker",
+                                "type":"string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "mask"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <mask> element defines an alpha mask for compositing the current object into the background.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/mask",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "maskContentUnits":{
+                                "description": "the coordinate system for the contents of the <mask>",
+                                "type":"string",
+                                "enum": ["userSpaceOnUse","objectBoundingBox"]
+                            },
+                            "maskUnits":{
+                                "description": "the coordinate system for attributes x, y, width and height on the <mask>",
+                                "type":"string",
+                                "enum": ["userSpaceOnUse","objectBoundingBox"]
+                            },
+                            "x": {
+                                "description": "the x-axis coordinate of the top-left corner of the masking area",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "the y-axis coordinate of the top-left corner of the masking area",
+                                "type":["number", "string"]
+                            },
+                            "width": {
+                                "description": "the width of the masking area",
+                                "type":["number", "string"]
+                            },
+                            "height": {
+                                "description": "the height of the masking area",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }    
+                },{
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "pattern"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <pattern> element defines a graphics object which can be redrawn at repeated x- and y-coordinate intervals (\"tiled\") to cover an area.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/pattern",
+                        "properties": {
+                            "children": {"$ref": "#/$defs/children"},
+                            "href": {
+                                "description": "This attribute reference a template pattern that provides default values for the <pattern> attributes",
+                                "type": "string"
+                            },
+                            "xlink:href": {
+                                "description": "This attribute references a template pattern that provides default values for the <pattern> attributes",
+                                "type": "string"
+                            },
+                            "patternContentUnits": {
+                                "description": "This attribute defines the coordinate system for the contents of the <pattern>",
+                                "type": "string",
+                                "enum": ["userSpaceOnUse", "objectBoundingBox"]
+                            },
+                            "patternTransform": {
+                                "description": "This attribute contains the definition of an optional additional transformation from the pattern coordinate system onto the target coordinate system",
+                                "type": "string"
+                            },
+                            "patternUnits": {
+                                "description": "This attribute defines the coordinate system for attributes x, y, width, and height",
+                                "type": "string",
+                                "enum": ["userSpaceOnUse", "objectBoundingBox"]
+                            },
+                            "preserveAspectRatio": {"$ref": "#/$defs/preserveAspectRatio"},
+                            "viewBox": {
+                                "description": "This attribute defines the bound of the SVG viewport for the pattern fragment",
+                                "type": "string"
+                            },
+                            "x": {
+                                "description": "This attribute determines the x coordinate shift of the pattern tile",
+                                "type": ["number", "string"]
+                            },
+                            "y": {
+                                "description": "This attribute determines the y coordinate shift of the pattern tile",
+                                "type": ["number", "string"]
+                            },
+                            "width": {
+                                "description": "This attribute determines the width of the pattern tile",
+                                "type": ["number", "string"]
+                            },
+                            "height": {
+                                "description": "This attribute determines the height of the pattern tile",
+                                "type": ["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "radialGradient"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <radialGradient> element lets authors define radial gradients that can be applied to fill or stroke of graphical elements.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/radialGradient",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "cx": {
+                                "description": "the x coordinate of the end circle of the radial gradient",
+                                "type":["number", "string"]
+                            },
+                            "cy": {
+                                "description": "the y coordinate of the end circle of the radial gradient",
+                                "type":["number", "string"]
+                            },
+                            "r": {
+                                "description": "the radius of the end circle of the radial gradient",
+                                "type":["number", "string"]
+                            },
+                            "fr": {
+                                "description": "the radius of the start circle of the radial gradient. The gradient will be drawn such that the 0% <stop> is mapped to the perimeter of the start circle.",
+                                "type":["number", "string"]
+                            },
+                            "fx": {
+                                "description": "the x coordinate of the start circle of the radial gradient",
+                                "type":["number", "string"]
+                            },
+                            "fy": {
+                                "description": "the y coordinate of the start circle of the radial gradient",
+                                "type":["number", "string"]
+                            },
+                            "gradientUnits":{
+                                "description": "the coordinate system for attributes cx, cy, r, fx, fy, and fr",
+                                "type":"string",
+                                "enum": ["userSpaceOnUse","objectBoundingBox"]
+                            },
+                            "gradientTransform":{
+                                "description": "provides additional transformation to the gradient coordinate system",
+                                "type":"string"
+                            },
+                            "spreadMethod":{
+                                "description": "how the gradient behaves if it starts or ends inside the bounds of the shape containing the gradient",
+                                "type":"string",
+                                "enum": ["pad","reflect","repeat"]
+                            },
+                            "href":{
+                                "description": "This attribute defines a reference to another <radialGradient> element that will be used as a template",
+                                "type":"string"
+                            },
+                            "xlink:href":{
+                                "description": "An IRI reference to another <radialGradient> element that will be used as a template",
+                                "type":"string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "stop"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The SVG <stop> element defines a color and its position to use on a gradient.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop",
+                        "properties":{
+                            "offset": {
+                                "description": "The offset of the stop",
+                                "type":["number", "string"]
+                            },
+                            "stopColor": {
+                                "description": "The color of the stop",
+                                "type":"string"
+                            },
+                            "stopOpacity": {
+                                "description": "The opacity of the stop",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "style"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The SVG <style> element allows style sheets to be embedded directly within SVG content.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/style",
+                        "properties":{
+                            "style.type": {
+                                "description": "The type of the style sheet language to use as a media type string",
+                                "type":"string"
+                            },
+                            "children": { "$ref":"#/$defs/children"},
+                            "media": {
+                                "description": "This attribute defines to which media the style applies",
+                                "type":"string"
+                            },
+                            "title": {
+                                "description": "This attribute defines the title of the style element",
+                                "type":"string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "switch"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <switch> SVG element evaluates any requiredFeatures, requiredExtensions and systemLanguage attributes on its direct child elements in order, and then renders the first child where these attributes evaluate to true.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/switch",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "symbol"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <symbol> element is used to define graphical template objects which can be instantiated by a <use> element.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/symbol",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"},
+                            "preserveAspectRatio": {"$ref":"#/$defs/preserveAspectRatio"},
+                            "viewBox": {
+                                "description": "This attribute defines the bound of the SVG viewport for the current symbol",
+                                "type":"string"
+                            },
+                            "refX": {
+                                "description": "the x coordinate of the reference point of the symbol",
+                                "type":["number", "string"]
+                            },
+                            "refY": {
+                                "description": "the y coordinate of the reference point of the symbol",
+                                "type":["number", "string"]
+                            },
+                            "x": {
+                                "description": "the x-axis coordinate of the top-left corner of the symbol",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "the y-axis coordinate of the top-left corner of the symbol",
+                                "type":["number", "string"]
+                            },
+                            "width": {
+                                "description": "the width of the symbol",
+                                "type":["number", "string"]
+                            },
+                            "height": {
+                                "description": "the height of the symbol",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "text"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The SVG <text> element draws a graphics element consisting of text. It's possible to apply a gradient, pattern, clipping path, mask, or filter to <text>, like any other SVG graphics element.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/text",
+                        "properties":{
+                            "x": {
+                                "description": "The x coordinate of the starting point of the text baseline, or the x coordinate of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate of the starting point of the text baseline, or the y coordinate of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "dx": {
+                                "description": "Shifts the text position horizontally from a previous text element, or shifts the position of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "dy": {
+                                "description": "Shifts the text position vertically from a previous text element, or shifts the position of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "rotate": {
+                                "description": "Rotates orientation of each individual glyph. Can rotate glyphs individually",
+                                "type":["number", "string"]
+                            },
+                            "textLength": {
+                                "description": "A width that the text should be scaled to fit",
+                                "type":["number", "string"]
+                            },
+                            "lengthAdjust": {
+                                "description": "How the text is stretched or compressed to fit the width defined by the textLength attribute",
+                                "type":"string",
+                                "enum": ["spacing", "spacingAndGlyphs"]
+                            },
+                            "children": {"$ref":"#/$defs/children"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "textPath"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "To render text along the shape of a <path>, enclose the text in a <textPath> element that has an href attribute with a reference to the <path> element.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/textPath",
+                        "properties":{
+                            "href": {
+                                "description": "The URL to the path or basic shape on which to render the text. If the path attribute is set, href has no effect",
+                                "type":"string"
+                            },
+                            "lengthAdjust":{
+                                "description": "Where length adjustment should be applied to the text: the space between glyphs, or both the space and the glyphs themselves",
+                                "type":"string",
+                                "enum": ["spacing", "spacingAndGlyphs"]
+                            },
+                            "path":{
+                                "description": "The path on which the text should be rendered",
+                                "type":"string"
+                            },
+                            "startOffset": {
+                                "description": "How far the beginning of the text should be offset from the beginning of the path",
+                                "type":["number", "string"]
+                            },
+                            "method": {
+                                "description": "Which method to render individual glyphs along the path",
+                                "type":"string",
+                                "enum": ["align", "stretch"]
+                            },
+                            "spacing": {
+                                "description": "How space between glyphs should be handled",
+                                "type":"string",
+                                "enum": ["auto", "exact"]
+                            },
+                            "side": {
+                                "description": "Which side of the path the text should be rendered",
+                                "type":"string",
+                                "enum": ["left", "right"]
+                            },
+                            "textLength": {
+                                "description": "The width of the space into which the text will render.",
+                                "type":["number", "string"]
+                            },
+                            "children": {
+                                "description": "The text content",
+                                "type":"string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "title"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <title> element provides an accessible, short-text description of any SVG container element or graphics element.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/title",
+                        "properties":{
+                            "children": {"$ref":"#/$defs/children"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "tspan"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The SVG <tspan> element defines a subtext within a <text> element or another <tspan> element.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/tspan",
+                        "properties":{
+                            "x": {
+                                "description": "The x coordinate of the starting point of the text baseline, or the x coordinate of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate of the starting point of the text baseline, or the y coordinate of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "dx": {
+                                "description": "Shifts the text position horizontally from a previous text element, or shifts the position of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "dy": {
+                                "description": "Shifts the text position vertically from a previous text element, or shifts the position of each individual glyph if a list of values is provided",
+                                "type":["number", "string"]
+                            },
+                            "rotate": {
+                                "description": "Rotates orientation of each individual glyph. Can rotate glyphs individually",
+                                "type":["number", "string"]
+                            },
+                            "textLength": {
+                                "description": "A width that the text should be scaled to fit",
+                                "type":["number", "string"]
+                            },
+                            "lengthAdjust": {
+                                "description": "How the text is stretched or compressed to fit the width defined by the textLength attribute",
+                                "type":"string",
+                                "enum": ["spacing", "spacingAndGlyphs"]
+                            },
+                            "children": {"$ref":"#/$defs/children"}
+                        }
+                    }
+                },
+                {
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "use"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <use> element takes nodes from within the SVG document, and duplicates them somewhere else.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/use",
+                        "properties":{
+                            "href": {
+                                "description": "The href of the element to use",
+                                "type":"string"
+                            },
+                            "xlink:href": {
+                                "description": "The IRI of the element to use",
+                                "type":"string"
+                            },
+                            "x": {
+                                "description": "The x coordinate of an additional final offset transformation applied to the <use> element",
+                                "type":["number", "string"]
+                            },
+                            "y": {
+                                "description": "The y coordinate of an additional final offset transformation applied to the <use> element",
+                                "type":["number", "string"]
+                            },
+                            "width": {
+                                "description": "The width of the <use> element",
+                                "type":["number", "string"]
+                            },
+                            "height": {
+                                "description": "The height of the <use> element",
+                                "type":["number", "string"]
+                            }
+                        }
+                    }
+                },{
+                    "if":{
+                        "properties":{
+                            "type":{
+                                "const": "view"
+                            }
+                        }
+                    },
+                    "then":{
+                        "description": "The <view> SVG element defines a particular view of an SVG document.\nhttps://developer.mozilla.org/en-US/docs/Web/SVG/Element/view",
+                        "properties":{
+                            "viewBox": {
+                                "description": "The viewBox of the <view> element",
+                                "type":"string"
+                            },
+                            "preserveAspectRatio": {"$ref":"#/$defs/preserveAspectRatio"}
+                        }
+                    }
+                }
+            ]
+        
+        },
+        "children":{
+            "description": "The children of the element",
+            "type":"array",
+            "items": {"$ref":"#/$defs/svgcomponent"}
+        }
+    },
+    "title": "ParametricSVG JSON Schema",
+    "description": "Describes the valid JSON to represent an SVG Element using the ParametricSVG library",
+    "type":"object",
+    "properties": {
+        "comments": {
+            "description": "An Optional collection of notes about the svg",
+            "type": "array",
+            "items": "string"
+        },
+        "attributes": {
+            "description": "HTML attributes for the SVG element",
+            "type": "object"
+        },
+        "equations": {
+            "description": "Equations available to evaluate in the construction of the SVG. All equations should be valid and solveable.",
+            "type": "object",
+            "$comment": "While the docs mention that the patternProperty generates an annotation, it does not seem possible to reference that annotation from within the schema. Therefore, afaict, we cannot compare the patternProperties Match to the object's **name** value.\nhttps://json-schema.org/draft/2020-12/json-schema-core#name-patternproperties",
+            "patternProperties":{
+                "^[a-zA-Z_][a-zA-Z0-9_]*":{
+                    "description": "Describes an equation: the key for this property should be its name",
+                    "type":"object",
+                    "properties":{
+                        "name":{
+                            "description": "Name of the equation, should match its key in the 'equations' property",
+                            "type":"string"
+                        },
+                        "value": {
+                            "description": "Value of the equation (either in equation form or a numerical result)",
+                            "type":"string"
+                        },
+                        "disabled": {
+                            "description": "Whether the equation is disabled; disabled equations are excluded when constructing the SVG",
+                            "type":"boolean"
+                        },
+                        "comment": {
+                            "description": "Any comments about the equation",
+                            "type":"string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": ["name", "value" ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "svgcomponents": {
+            "description": "The full description of the SVG Element",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/svgcomponent"
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [ "attributes", "equations" , "svgcomponents" ]
+}
