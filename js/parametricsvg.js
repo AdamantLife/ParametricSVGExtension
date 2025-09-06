@@ -4,6 +4,7 @@
  * An array of JSON descriptions used by ParametricSVG
  * to generate SVG elements
  * @typedef {Object} JsonDescription
+ * @property {Object<string, string>} constants - Constants that will be substituted before evaluation
  * @property {Variables} equations - Equations available to evaluate the values of component attributes
  * @property {SVGDescription[]} svgcomponents - The components of the SVG
  * @property {Object<string, string>} attributes - The attributes of the SVG
@@ -168,7 +169,7 @@ export var ParametricSVG = {
     evaluator : null,
 
     /** DEVNOTE - parse[Element] functions are nested in parseJSON for two reasons:
-     *      1) in order to avoid passing the obj argument (or its equations, specifically)
+     *      1) in order to avoid passing the obj argument (or its equations attribute, specifically)
      *      2) because it doesn't seem necessary to expose them
      * 
      *      If a good reason to expose them is found, then it should be trivial to
@@ -189,6 +190,19 @@ export var ParametricSVG = {
                 throw new Error("No evaluator defined");
             }
             evaluator = ParametricSVG.evaluator;
+        }
+
+        description.svgcomponents = description.svgcomponents || [];
+        let constants = description.constants || {};
+        description.constants = {};
+        // Constants name must be valid variable names
+        let constre = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+        for(let [key, value] of Object.entries(constants)){
+            if(constre.test(key)){
+                if(typeof value == "string"){
+                    description.constants[key] = value;
+                }
+            }
         }
 
         if(description.attributes?.viewBox){
@@ -219,6 +233,43 @@ export var ParametricSVG = {
             }
             let element = parseComponent(obj);
             svg.appendChild(element);
+        }
+
+        /**
+         * Parses a missing variable and returns a default value or null.
+         * @param {VariableName} variableName - The name of the missing variable
+         * @returns {Variable|null} - The missing variable or null
+         */
+        function parseMissing(variableName){
+            if(variableName.charAt(0) !== "@"){
+                return null;
+            }
+            let tree = variableName.slice(1).split(".");
+            if(tree.length === 0 || tree.length > 3) return null;
+
+            function recurseFind(componentlist){
+                for(let component of componentlist||[]){
+                    if(component.id === tree[0]){
+                        return component;
+                    }
+                    let res = recurseFind(component.children || []);
+                    if(res) return res;
+                }
+                return null;
+            }
+            let obj = recurseFind(description.svgcomponents);
+            if(!obj) return null;
+            if(tree.length === 2){
+                if(obj[tree[1]] !== undefined){
+                    return {name: variableName, value: obj[tree[1]], disabled: false, comment: `${variableName}`};
+                }
+                return null;
+            }
+            if(tree[1] !== "attributes") return null;
+            if(obj.attributes[tree[2]] !== undefined){
+                return {name: variableName, value: obj.attributes[tree[2]], disabled: false, comment: `${variableName}`};
+            }
+            return null;
         }
 
         /**
@@ -368,26 +419,47 @@ export var ParametricSVG = {
                 if(Array.isArray(val)){
                     let v = "";
                     for(let v1 of val){
+                        // NOTE- At the moment we are allowing constants to be used in array-constructed values
+                        if(description.constants[v1] !== undefined){
+                            v1 = description.constants[v1];
+                        }
                         try{
-                            v1 = evaluator(v1, description.equations);
+                            let result = evaluator(v1, description.equations, undefined, parseMissing);
+                            v1 = result.value;
                         }catch(e){
                         }
                         v+=v1;
                     }
                     val = v;
+                }else{
+                    if(description.constants[val] !== undefined){
+                        val = description.constants[val];
+                    }
                 }
                 if(val){
+                    let result;
                     try{
-                        val = evaluator(val, description.equations);
+                        result = evaluator(val, description.equations, undefined, parseMissing);
                     }catch(e){
                         // console.error(e);
                     }
-                }
-                if(val === undefined || val === null || val === "") continue;
-                try{
-                    element.setAttributeNS(null, attr, val);
-                }catch(e){
-                    console.error(e);
+                    
+                    if(!result?.result){
+                        try{
+                            element.setAttributeNS(null, attr, val);
+                            continue;
+
+                        }catch(e){
+                            console.error(e);
+                        }
+                    }
+                    
+                    val = result.value;
+                    try{
+                        element.setAttributeNS(null, attr, val);
+                    }catch(e){
+                        console.error(e);
+                    }
                 }
             }
         }
@@ -496,7 +568,7 @@ export var ParametricSVG = {
             let attributes = {...component.attributes};
             attributes.points = "";
             for(let [x,y] of component.points||[]){
-                attributes.points += `${evaluator(x, description.equations)},${evaluator(y, description.equations)} `;
+                attributes.points += `${evaluator(x, description.equations, undefined, parseMissing)},${evaluator(y, description.equations, undefined, parseMissing)} `;
             }
             let out = document.createElementNS(ParametricSVG.XMLNS, "polygon");
             setComponentAttributes(out, attributes);
@@ -512,7 +584,7 @@ export var ParametricSVG = {
             let attributes = {...component.attributes};
             attributes.points = "";
             for(let [x,y] of component.points||[]){
-                attributes.points += `${evaluator(x, description.equations)},${evaluator(y, description.equations)} `;
+                attributes.points += `${evaluator(x, description.equations, undefined, parseMissing)},${evaluator(y, description.equations, undefined, parseMissing)} `;
             }
             let out = document.createElementNS(ParametricSVG.XMLNS, "polyline");
             setComponentAttributes(out, attributes);
@@ -533,11 +605,11 @@ export var ParametricSVG = {
             function parseDefault({type, x, y}){
                 if(type == "close") return "Z";
                 try{
-                    x = evaluator(x, description.equations);
+                    x = evaluator(x, description.equations, undefined, parseMissing);
                 }catch(e){  }
                 if(type == "horizontal"){ return `H ${x}`; }
                 try{
-                    y = evaluator(y, description.equations);
+                    y = evaluator(y, description.equations, undefined, parseMissing);
                 }catch(e){  }
                 if(type == "move"){
                     return `M ${x} ${y}`;
@@ -554,13 +626,13 @@ export var ParametricSVG = {
              * @returns {string}- The path segment string
              */
             function parseCubic({type, x1=0, y1=0, x2=0, y2=0, x=0, y=0}){
-                x2 = evaluator(x2, description.equations);
-                y2 = evaluator(y2, description.equations);
-                x = evaluator(x, description.equations);
-                y = evaluator(y, description.equations);
+                x2 = evaluator(x2, description.equations, undefined, parseMissing);
+                y2 = evaluator(y2, description.equations, undefined, parseMissing);
+                x = evaluator(x, description.equations, undefined, parseMissing);
+                y = evaluator(y, description.equations, undefined, parseMissing);
                 if(type == "cubic"){
-                    x1 = evaluator(x1, description.equations);
-                    y1 = evaluator(y1, description.equations);
+                    x1 = evaluator(x1, description.equations, undefined, parseMissing);
+                    y1 = evaluator(y1, description.equations, undefined, parseMissing);
                     return `C ${x1} ${y1},${x2} ${y2},${x} ${y}`;
                 }else if (type == "shortcubic"){
                     return `S ${x2} ${y2},${x} ${y}`
@@ -572,11 +644,11 @@ export var ParametricSVG = {
              * @returns {string}- The path segment string
              */
             function parseQuadratic({type, x1=0, y1=0, x=0, y=0}){
-                x = evaluator(x, description.equations);
-                y = evaluator(y, description.equations);
+                x = evaluator(x, description.equations, undefined, parseMissing);
+                y = evaluator(y, description.equations, undefined, parseMissing);
                 if(type == "quadratic"){
-                    x1 = evaluator(x1, description.equations);
-                    y1 = evaluator(y1, description.equations);
+                    x1 = evaluator(x1, description.equations, undefined, parseMissing);
+                    y1 = evaluator(y1, description.equations, undefined, parseMissing);
                     return `Q ${x1} ${y1},${x} ${y}`;
                 }else if (type == "shortquadratic"){
                     return `T ${x} ${y}`
@@ -589,10 +661,10 @@ export var ParametricSVG = {
              * @returns {string}- The path segment string
              */
             function parseArc({type, x, y, rx, ry, xRotation, largeArcFlag, sweepFlag}){
-                x = evaluator(x, description.equations);
-                y = evaluator(y, description.equations);
-                rx = evaluator(rx, description.equations);
-                ry = evaluator(ry, description.equations);
+                x = evaluator(x, description.equations, undefined, parseMissing);
+                y = evaluator(y, description.equations, undefined, parseMissing);
+                rx = evaluator(rx, description.equations, undefined, parseMissing);
+                ry = evaluator(ry, description.equations, undefined, parseMissing);
                 if(type == "arc"){
                     return `A ${rx} ${ry} ${xRotation} ${largeArcFlag? 1 : 0} ${sweepFlag? 1 : 0} ${x} ${y}`;
                 }

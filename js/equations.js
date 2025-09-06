@@ -3,7 +3,7 @@
  * Module for parsing and evaluating equations
  * 
  * Restrictions:
- *  - Variable names must start with a letter or underscore and be composed of values [a-zA-Z0-9_]
+ *  - Variable names must start with a letter, underscore, or at-sign (@), after which all characters must be in the set [a-zA-Z0-9_]
  *  - Variable names must be unique within an execution of evaluateEquation
  *  - No circular dependencies
  *  - Decimal points must be preceded by a digit
@@ -26,21 +26,53 @@
  * 
  * @typedef {Map<VariableName, Variable>} Variables
  */
+
+/**
+ * @readonly
+ * @enum {String}
+ */
+export const ERROR = {
+    VARIABLE_NOT_FOUND: "variable_not_found",
+    CYCLICAL_DEPENDENCY: "cyclical_dependency",
+    MISSING_CLOSING_PARENTHESIS: "missing_closing_parenthesis",
+    MORE_CLOSING_PARENS: "more_closing_parens",
+    MORE_OPENING_PARENS: "more_opening_parens",
+    FAILED_TO_SUBSTITUTE_VARIABLE: "failed_to_substitute_variable",
+    VARIABLE_DISABLED: "variable_disabled",
+    FAILED_TO_RESOLVE_PARENTHESES: "failed_to_resolve_parentheses",
+    FAILED_TO_EVALUATE_OPERATION: "failed_to_evaluate_operation",
+    EMPTY_STRING: "empty_string",
+    FAILED_TO_PARSE_EQUATION: "failed_to_parse_equation",
+}
+
+/**
+ * @typedef {Object} ParseResult
+ * @property {Boolean} result - Whether the variable was successfully parsed
+ * @property {Number} [value] - The parsed variable value
+ * @property {String} [error] - The error message if the variable was not successfully parsed
+ * @property {ERROR} [errortype] - The type of error if the variable was not successfully parsed
+ */
  
+/**
+ * @callback missingVariableCallback
+ * @param {VariableName} variableName - The name of the missing variable
+ * @returns {Variable|null} - The missing variable or null
+ */
 
 /**
  * Parses and evaluates an equation.
  * @param {Equation} equation - The equation to evaluate
  * @param {Variables} variables - The variables to use
  * @param {VariableName[]} [dependencies] - Variables that are dependent on the equation (this is normally not supplied by the user)
- * @returns {Number} - The result of the equation
+ * @param {missingVariableCallback} [missing] - A function that is called when a variable is not found. It takes the variable name as an argument and should return a Variable object or null.
+ * @returns {ParseResult} - The result of the equation evaluation
  */
-export function evaluateEquation(equation, variables = {}, dependencies = undefined){
+export function evaluateEquation(equation, variables = {}, dependencies = undefined, missing = undefined){
     if(dependencies == undefined) dependencies = [];
 
     // Set to undefined to disable debugging,
     // otherwise should be an integer representing spacing per indent
-    var DEBUGTAB = true;
+    var DEBUGTAB;
     function log(...args){
         if(typeof DEBUGTAB == "undefined") return;
         console.log(" ".repeat(DEBUGTAB*2), ...args);
@@ -55,40 +87,64 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
      * @param {Equation} equation - The equation to substitute
      * @param {Variables} variables - The variables to use
      * @param {VariableName[]} dependencies - Variables that are dependent on the equation (this is normally not supplied by the user)
-     * @returns {Number} - The result of resolveParentheses
+     * @returns {ParseResult} - The result of resolveParentheses
      */
     function substituteVariables(equation, variables, dependencies){
         DEBUGINC();
-        var VARIABLEREG = /[a-zA-Z_][a-zA-Z0-9_]*/;
+        var VARIABLEREG = /@?[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*/;
         let variable
         while((variable = VARIABLEREG.exec(equation)) !== null){
             let variablename = variable[0];
+            log("Substituting variable:", variablename);
             if(variables[variablename] == undefined || variables[variablename].value == undefined){
-                DEBUGDEC();
-                throw new Error("Failed to substitute variable: " + variable[0]);
+                if(missing){
+                    DEBUGINC();
+                    log("Variable not found, calling missing callback:", variablename);
+                    let missingVar = missing(variablename);
+                    if(missingVar){
+                        variables[variablename] = missingVar;
+                    }
+                    DEBUGDEC();
+                }
+                if(variables[variablename] == undefined || variables[variablename].value == undefined){
+                    DEBUGDEC();
+                    return {result: false, error: "Variable not found: " + variablename, errortype: ERROR.VARIABLE_NOT_FOUND};
+                    // throw new Error("Failed to substitute variable: " + variable[0]);
+                }
             }
             if(variables[variablename].disabled){
                 DEBUGDEC();
-                throw new Error("Variable is disabled: " + variablename + " in " + equation);
+                return {result: false, error: "Variable is disabled: " + variablename + " in " + equation, errortype: ERROR.VARIABLE_DISABLED};
+                // throw new Error("Variable is disabled: " + variablename + " in " + equation);
             }
             if(dependencies.includes(variablename)){
                 DEBUGDEC();
-                throw new Error("Cyclical dependency: " + variablename + " in " + equation);
+                return {result: false, error: "Cyclical dependency: " + variablename + " in " + equation, errortype: ERROR.CYCLICAL_DEPENDENCY};
+                // throw new Error("Cyclical dependency: " + variablename + " in " + equation);
             }
             if(typeof variables[variablename].value == "string"){
                 let depcopy = [...dependencies];
                 depcopy.push(variablename);
-                variables[variablename].value = evaluateEquation(variables[variablename].value, variables, depcopy);
+                let result = evaluateEquation(variables[variablename].value, variables, depcopy);
+                if(!result.result){
+                    DEBUGDEC();
+                    return {result: false, error: "Failed to evaluate variable: " + variablename, errortype: ERROR.FAILED_TO_EVALUATE_VARIABLE};
+                }
+                variables[variablename].value = result.value;
             }
             let eq = equation;
             equation = equation.slice(0, variable.index) + variables[variablename].value + equation.slice(variable.index + variablename.length);
             if(eq == equation){
                 DEBUGDEC();
-                throw new Error("Failed to substitute variable: " + variable[0] + "in " + eq + " >>> result: " + equation);
+                return {result: false, error: "Failed to substitute variable: " + variable[0] + "in " + eq + " >>> result: " + equation, errortype: ERROR.FAILED_TO_SUBSTITUTE_VARIABLE};
+                // throw new Error("Failed to substitute variable: " + variable[0] + "in " + eq + " >>> result: " + equation);                    
             }
         }
         DEBUGDEC();
-        checkParentheses(equation);
+        let result = checkParentheses(equation);
+        if(!result.result){
+            return result;
+        }
         return resolveParentheses(equation, variables, dependencies);
     }
     /** Because of the way we're resolving the paretheses, it's easiest to count them before
@@ -98,11 +154,13 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
     function checkParentheses(equation){
         let open = equation.split("(").length - 1;
         let close = equation.split(")").length - 1;
-        if(open == close) return;
+        if(open == close) return {result: true};
         if(open > close){
-            throw new Error("More opening parentheses than closing: " + equation);
+            return {result: false, error: "More closing parentheses than opening: " + equation, errortype: ERROR.MORE_CLOSING_PARENS};
+            // throw new Error("More opening parentheses than closing: " + equation);
         }
-        throw new Error("More closing parentheses than opening: " + equation);
+        return {result: false, error: "More opening parentheses than closing: " + equation, errortype: ERROR.MORE_OPENING_PARENS};
+        // throw new Error("More closing parentheses than opening: " + equation);
     }
 
     /**
@@ -110,7 +168,7 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
      * @param {Equation} equation - The equation to resolve
      * @param {Variables} variables - The variables to use (not used in this function)
      * @param {VariableName[]} dependencies - Variables that are dependent on the equation (this is normally not supplied by the user; not used in this function)
-     * @returns {Number} - The result of evaluateOperations
+     * @returns {ParseResult} - The result of evaluateOperations
      */
     function resolveParentheses(equation, variables, dependencies){
         DEBUGINC();
@@ -124,18 +182,28 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
         }
         if(open > 0 && close < 0){
             DEBUGDEC();
-            throw new Error("Missing closing parenthesis: " + equation);
+            return {result: false, error: "Missing closing parenthesis: " + equation, errortype: ERROR.MISSING_CLOSING_PARENTHESIS};
+            // throw new Error("Missing closing parenthesis: " + equation);
         }
         if(open < 0 || close < open){
-            let value = resolveParentheses(equation.slice(0,close), variables, dependencies);
-            return value + equation.slice(close+1);
+            let result = resolveParentheses(equation.slice(0,close), variables, dependencies);
+            if(!result.result){
+                DEBUGDEC();
+                return result;
+            }
+            return {result: true, value: result.value + equation.slice(close+1)};
         }
         let eq = equation;
-        let value = resolveParentheses(equation.slice(open+1), variables, dependencies);
-        equation = equation.slice(0, open)+ value;
+        let result = resolveParentheses(equation.slice(open+1), variables, dependencies);
+        if(!result.result){
+            DEBUGDEC();
+            return result;
+        }
+        equation = equation.slice(0, open)+ result.value;
         if(eq == equation){
             DEBUGDEC();
-            throw new Error("Failed to resolve parentheses: " + eq + " >>> result: " + equation);
+            return {result: false, error: "Failed to resolve parentheses: " + eq + " >>> result: " + equation, errortype: ERROR.FAILED_TO_RESOLVE_PARENTHESES};
+            // throw new Error("Failed to resolve parentheses: " + eq + " >>> result: " + equation);
         }
         // log("returning:", equation);
         DEBUGDEC();
@@ -147,7 +215,7 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
      * @param {Equation} equation - The equation to evaluate
      * @param {Variables} variables - The variables to use (not used in this function)
      * @param {VariableName[]} dependencies - Variables that are dependent on the equation (this is normally not supplied by the user; not used in this function)
-     * @returns {Number} - The result of the equation
+     * @returns {ParseResult} - The result of the equation
      */
     function evaluateOperations(equation, variables, dependencies){
         DEBUGINC();
@@ -184,19 +252,26 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
                     f = func;
                 }
             }
+
             if(!match) continue;
 
             let a = parseValue(match.groups.a);
             let b = parseValue(match.groups.b);
             let eq = equation;
 
+            if(!a.result || !b.result){
+                DEBUGDEC();
+                return {result: false, error: "Failed to evaluate operation: " + equation, errortype: ERROR.FAILED_TO_EVALUATE_OPERATION};
+            }
+
             // log(equation, a, f, b, match.index, match[0].length);
 
-            equation = equation.slice(0, match.index) + f(a,b) + equation.slice(match.index + match[0].length);
+            equation = equation.slice(0, match.index) + f(a.value,b.value) + equation.slice(match.index + match[0].length);
 
             if(eq == equation){
                 DEBUGDEC();
-                throw new Error("Failed to evaluate operation: " + equation);
+                return {result: false, error: "Failed to evaluate operation: " + equation, errortype: ERROR.FAILED_TO_EVALUATE_OPERATION};
+                // throw new Error("Failed to evaluate operation: " + equation);
             }
 
             DEBUGDEC();
@@ -212,28 +287,31 @@ export function evaluateEquation(equation, variables = {}, dependencies = undefi
      * @param {Equation} equation - The equation to parse
      * @param {Variables} variables - The variables to use
      * @param {VariableName[]} dependencies - Variables that are dependent on the equation
-     * @returns {Number} - The result of the equation
+     * @returns {ParseResult} - The result of the equation
      */
     function parseValue(equation, variables, dependencies){
         DEBUGINC();
+        log("Parsing value:", equation);
         // Number() converts empty strings and whitespace-exclusive
         // strings to 0, so we need to check that first
         if(!equation.trim()){
             DEBUGDEC();
-            throw new Error(`Empty String: "${equation}"`);
+            return {result: false, error: "Empty String: \""+equation+"\"", errortype: ERROR.EMPTY_STRING};
+            // throw new Error(`Empty String: "${equation}"`);
         }
         let result = Number(equation);
         if(isNaN(result)){
             DEBUGDEC();
-            throw new Error(`Failed to parse equation: ${equation}`);
+            return {result: false, error: "Failed to parse equation: " + equation, errortype: ERROR.FAILED_TO_PARSE_EQUATION};
+            // throw new Error(`Failed to parse equation: ${equation}`);
         }
         DEBUGDEC();
-        return result;
+        return {result: true, value: result};
     }
 
     equation = equation+"";
     if(equation.startsWith("=")) equation = equation.slice(1);
-    equation = substituteVariables(equation, variables, dependencies);
+    let result = substituteVariables(equation, variables, dependencies);
     DEBUGDEC();
-    return equation;
+    return result;
 }

@@ -1315,6 +1315,17 @@
             "description": "HTML attributes for the SVG element",
             "type": "object"
         },
+        "constants":{
+            "description": "Values that will be substituted into component attributes when they match a string value exactly. Constant names must start with a letter or underscore, and contain only letters, numbers, and underscores.",
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+                    "description": "A constant value that will not be evaluated",
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
         "equations": {
             "description": "Equations available to evaluate in the construction of the SVG. All equations should be valid and solveable.",
             "type": "object",

@@ -29,3 +29,7 @@ Releases will occur both for Extension improvements as well as for downstream im
 ### 1.0.0
 
 Initial release of the ParametricSVG Extension. Supports the October 2024 version of the Schema.
+
+### 2.0.0
+
+ParametricSVG update which added the ability to reference attributes of svg components from within equations as well as adding the "constants" property (among other internal changes).
